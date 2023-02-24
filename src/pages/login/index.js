@@ -30,7 +30,7 @@ function LoginPage(){
     }
 
     const handleLoginBtnClick = (e) => {
-        if(username === "Admin" && password == "123456"){
+        if(username === "Admin" && password === "123456"){
             setErrInfo("")
             navigate("/demo/chat")
         }
