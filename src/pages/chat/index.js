@@ -1,79 +1,97 @@
-import { IconButton, Paper,Divider,InputBase, Button } from "@mui/material";
+import { Divider, OutlinedInput } from "@mui/material";
 import { Box } from "@mui/system";
-import SendIcon from '@mui/icons-material/Send';
 import { useEffect, useState } from "react";
 import { sendToChatGPT } from "../../actions/SendAction";
 import { useDispatch, useSelector } from "react-redux";
 
 
-function ChatPage(){
+function ChatPage() {
 
     const [nowChat, setNowChat] = useState("");
-
-    const [userChatList, setUserChatList] = useState([]);
     const [chatList, setChatList] = useState([]);
+    const [onLoad, setOnLoad] = useState(false);
+    const [oldAnswer, setOldAnswer] = useState("");
 
     const dispatch = useDispatch()
 
-    const selector = (state) =>{
+    const selector = (state) => {
         return {
-            ansText:state.Send.answerText
+            ansText: state.Send.answerText
         }
     }
 
-    const {ansText} = useSelector(selector);
+    const { ansText } = useSelector(selector);
 
-    useEffect(()=>{
-        if(ansText !== ""){
-            setChatList([...chatList, ansText])
+    useEffect(() => {
+        if (ansText !== oldAnswer) {
+            chatList.push(ansText)
+            setOnLoad(false)
+            setOldAnswer(ansText)
+            window.scrollTo(0, document.documentElement.scrollHeight)
         }
-        console.log(ansText)
-    },[ansText])
+    }, [ansText])
 
-    const nameCss = {textAlign:"left",marginLeft:"10px", marginTop:"10px"}
+    const nameCss = { textAlign: "left", marginLeft: "10px", marginTop: "10px" }
 
-    const ansCss = {minHeight:"50px", backgroundColor:"#D8D6D6", display:"flex", flexFlow:"column"}
+    const ansCss = { minHeight: "50px", display: "flex", flexFlow: "column", backgroundColor: "#11C2EE" }
+    const userCss = { minHeight: "50px", display: "flex", flexFlow: "column", backgroundColor: "#66FF00" }
 
-    const handleInputChange = (e) =>{
+    const handleInputChange = (e) => {
         setNowChat(e.target.value);
     }
 
-    const handleSendClick=(e)=>{
-        if(nowChat !== ""){
+    const handleEnterInputField = (e) => {
+        if (e.keyCode === 13) {
+            //输入为回车键
+            handleSendClick();
+        }
+    }
+
+    const handleSendClick = (e) => {
+        if (onLoad) {
+            window.alert("耐心等待一会吧...")
+            return false;
+        }
+        if (nowChat !== "") {
             chatList.push(nowChat)
             var nowSendChat = nowChat
             setNowChat("")
             dispatch(sendToChatGPT(nowSendChat))
+            setOnLoad(true)
+            window.scrollTo(0, document.documentElement.scrollHeight)
         }
     }
 
 
     return (
-        <Box sx={{alignItems:"center"}}>
-            <Box sx={{marginTop:"30px",marginLeft:"200px", display:"flex", flexFlow:"column", width:"1000px"}}>
+        <Box sx={{ alignItems: "center" }}>
+            <Box sx={{ marginTop: "30px", marginLeft: "200px", marginBottom: "200px", display: "flex", flexFlow: "column", width: "1000px" }}>
                 {chatList.map((value, index) => (
-                    <Box sx={ansCss}>
-                        {index % 2 === 0 ? <Box sx={nameCss}>You:</Box> : <Box sx={nameCss}>ChatGPT:</Box>}
-                        <Box sx={{textAlign:"left", minHeight:"50px", backgroundColor:"#D8D6D6"}}>{value}</Box>
+                    <Box>
+                        {index % 2 === 0 ?
+                            <Box sx={userCss}>
+                                <Box sx={nameCss}>You:</Box>
+                                <Box sx={{ textAlign: "left", minHeight: "50px", marginLeft: "50px" }}>{value}</Box>
+                            </Box> :
+                            <Box sx={ansCss}>
+                                <Box sx={nameCss}>ChatGPT:</Box>
+                                <Box sx={{ textAlign: "left", minHeight: "50px", marginLeft: "50px" }}>{value}</Box>
+                            </Box>}
                         <Divider />
                     </Box>
-                    
+
                 ))}
+                {window.scrollTo(0, document.documentElement.scrollHeight)}
             </Box>
-            
-            <Paper
-                component="form"
-                sx={{marginLeft:"200px",marginTop:"50px",marginBottom:"30px", display: 'flex', alignItems: 'center', width: 1000, height:"50px", border:"1px solid #D8D6D6"  }}
-            >
-                <InputBase
-                    sx={{ ml: 1, flex: 1,zIndex:"9999", height:"90%" }}
-                    onChange={handleInputChange}
-                    value={nowChat}
-                />
-                <Button endIcon={<SendIcon />} onClick={handleSendClick} ></Button>
-            </Paper>
-            
-            
+            <OutlinedInput
+                sx={{ position: "fixed", top: "650px", left: "208px", zIndex: "9999", width: 1000, border: "1px, solid, #808080" }}
+                onChange={handleInputChange}
+                value={nowChat}
+                onKeyDown={handleEnterInputField}
+
+            />
+
+
         </Box>
     )
 }
