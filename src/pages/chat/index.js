@@ -27,9 +27,13 @@ function ChatPage() {
             chatList.push(ansText)
             setOnLoad(false)
             setOldAnswer(ansText)
-            window.scrollTo(0, document.documentElement.scrollHeight)
         }
     }, [ansText])
+
+    useEffect(()=>{
+        window.scrollTo(0, document.documentElement.scrollHeight)
+    },[document.documentElement.scrollHeight])
+
 
     const nameCss = { textAlign: "left", marginLeft: "10px", marginTop: "10px" }
 
@@ -65,7 +69,7 @@ function ChatPage() {
 
     return (
         <Box sx={{ alignItems: "center" }}>
-            <Box sx={{ marginTop: "30px", marginLeft: "200px", marginBottom: "200px", display: "flex", flexFlow: "column", width: "1000px" }}>
+            <Box sx={{position:"absolute", top:"5%", left:"50%",transform:"translate(-50%,0)", display: "flex", flexFlow: "column", width: "1000px" }}>
                 {chatList.map((value, index) => (
                     <Box>
                         {index % 2 === 0 ?
@@ -81,10 +85,10 @@ function ChatPage() {
                     </Box>
 
                 ))}
-                {window.scrollTo(0, document.documentElement.scrollHeight)}
+                <Box sx={{height:"200px"}}></Box>
             </Box>
             <OutlinedInput
-                sx={{ position: "fixed", top: "650px", left: "208px", zIndex: "9999", width: 1000, border: "1px, solid, #808080" }}
+                sx={{ position: "fixed", top: "80%", left: "50%",transform: "translate(-50%,-50%)", zIndex: "9999", width: 1000, border: "1px, solid, #808080" }}
                 onChange={handleInputChange}
                 value={nowChat}
                 onKeyDown={handleEnterInputField}
